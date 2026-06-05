@@ -1,5 +1,7 @@
+import { Counter } from "../features/counter/ui";
+
 function App() {
-  return <></>;
+  return <Counter />;
 }
 
 export default App;
