@@ -10,6 +10,7 @@ import {
   searchChanged,
 } from "./model";
 import type { TProduct } from "../../shared/types/product";
+import { productAddedToCart } from "../cart/model";
 
 function formatCategory(category: string) {
   if (category === "all") return "All";
@@ -19,13 +20,15 @@ function formatCategory(category: string) {
 
 type ProductCardProps = {
   product: TProduct;
+  onAddToCart: (productId: string) => void;
 };
 
-function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
     <article>
       <strong>{product.title}</strong> — ${product.price}
       <span> / {formatCategory(product.category)}</span>
+      <button onClick={() => onAddToCart(product.id)}>Add to cart</button>
     </article>
   );
 }
@@ -40,6 +43,7 @@ export const Catalog = () => {
     selectCategory,
     productsCount,
     isCatalogEmpty,
+    addToCart,
   } = useUnit({
     products: $filteredProducts,
     categories: $categories,
@@ -49,6 +53,7 @@ export const Catalog = () => {
     selectCategory: categorySelected,
     productsCount: $productsCount,
     isCatalogEmpty: $isCatalogEmpty,
+    addToCart: productAddedToCart,
   });
 
   return (
@@ -82,7 +87,7 @@ export const Catalog = () => {
         <ul>
           {products.map((product) => (
             <li key={product.id}>
-              <ProductCard product={product} />
+              <ProductCard product={product} onAddToCart={addToCart} />
             </li>
           ))}
         </ul>

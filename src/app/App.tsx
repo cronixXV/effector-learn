@@ -1,3 +1,4 @@
+import { Cart } from "../features/cart/ui";
 import { Catalog } from "../features/catalog/ui";
 import { Counter } from "../features/counter/ui";
 
@@ -11,6 +12,10 @@ function App() {
       <hr />
 
       <Catalog />
+
+      <hr />
+
+      <Cart />
     </main>
   );
 }
