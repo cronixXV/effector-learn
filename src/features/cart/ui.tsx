@@ -1,25 +1,27 @@
 import { useUnit } from "effector-react";
 import {
-  $cart,
   $isCartEmpty,
   $totalCount,
   cartCleared,
   productQuantityChanged,
   productRemovedFromCart,
 } from "./model";
+import { $cartView, $totalPrice } from "./view-model";
 
 export const Cart = () => {
   const {
-    cart,
+    cartItems,
     isCartEmpty,
     totalCount,
+    totalPrice,
     removeProduct,
     clearCart,
     changeQuantity,
   } = useUnit({
-    cart: $cart,
+    cartItems: $cartView,
     isCartEmpty: $isCartEmpty,
     totalCount: $totalCount,
+    totalPrice: $totalPrice,
     removeProduct: productRemovedFromCart,
     clearCart: cartCleared,
     changeQuantity: productQuantityChanged,
@@ -33,32 +35,44 @@ export const Cart = () => {
       ) : (
         <>
           <ul>
-            {cart.map((item) => (
+            {cartItems.map((item) => (
               <li key={item.productId}>
-                <span>Product ID: {item.productId}</span>
+                <article>
+                  <h3>{item.product.title}</h3>
 
-                <input
-                  type="number"
-                  min={1}
-                  value={item.quantity}
-                  onChange={(event) =>
-                    changeQuantity({
-                      productId: item.productId,
-                      quantity: Number(event.currentTarget.value),
-                    })
-                  }
-                />
+                  <p>Category: {item.product.category}</p>
 
-                <button onClick={() => removeProduct(item.productId)}>
-                  Remove
-                </button>
+                  <p>Price: ${item.product.price}</p>
+
+                  <label>
+                    Quantity:
+                    <input
+                      type="number"
+                      min={1}
+                      value={item.quantity}
+                      onChange={(event) =>
+                        changeQuantity({
+                          productId: item.productId,
+                          quantity: event.currentTarget.valueAsNumber,
+                        })
+                      }
+                    />
+                  </label>
+
+                  <p>Subtotal: ${item.total}</p>
+
+                  <button onClick={() => removeProduct(item.productId)}>
+                    Remove
+                  </button>
+                </article>
               </li>
             ))}
           </ul>
 
           <p>Total items: {totalCount}</p>
+          <p>Total price: ${totalPrice}</p>
 
-          <button onClick={clearCart}>Clear cart</button>
+          <button onClick={() => clearCart()}>Clear cart</button>
         </>
       )}
     </section>
