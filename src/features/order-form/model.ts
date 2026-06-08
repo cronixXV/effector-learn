@@ -1,12 +1,20 @@
-import { combine, createEvent, createStore, sample } from "effector";
-import { $cart, $isCartEmpty } from "../cart/model";
+import {
+  combine,
+  createEffect,
+  createEvent,
+  createStore,
+  sample,
+} from "effector";
+import { $cart, $isCartEmpty, cartCleared } from "../cart/model";
 import type { TOrder } from "../../shared/types/order";
+import { createOrder } from "../../shared/api/orders";
 
 export const nameChanged = createEvent<string>();
 export const phoneChanged = createEvent<string>();
 export const addressChanged = createEvent<string>();
 export const orderSubmitted = createEvent(); // попытка отправки
 export const validOrderSubmitted = createEvent<TOrder>(); // подтверждённый валидный заказ
+export const submitOrderFx = createEffect(createOrder); // заказ отправляется во внешний мир / mock API
 
 // $name, $phone, $address — это обычные stores для полей формы.
 export const $name = createStore("").on(nameChanged, (_, name) => name);
@@ -25,7 +33,6 @@ export const $orderForm = combine({
 
 // $isOrderFormValid тоже derived store. Он пересчитывается каждый раз, когда меняется любое поле формы.
 // один store → .map(), несколько stores → combine()
-
 export const $isOrderFormValid = $orderForm.map(({ name, phone, address }) => {
   return (
     name.trim().length > 1 &&
@@ -50,8 +57,10 @@ export const $canSubmitOrder = combine(
   {
     isFormValid: $isOrderFormValid,
     isCartEmpty: $isCartEmpty,
+    isOrderSubmitting: submitOrderFx.pending, // уже “началась асинхронная отправка заказа”
   },
-  ({ isFormValid, isCartEmpty }) => isFormValid && !isCartEmpty
+  ({ isFormValid, isCartEmpty, isOrderSubmitting }) =>
+    isFormValid && !isCartEmpty && !isOrderSubmitting
 );
 
 export const $orderFormError = combine(
@@ -72,10 +81,15 @@ export const $orderFormError = combine(
   }
 );
 
+export const $isOrderSubmitting = submitOrderFx.pending;
+
+export const $orderSuccess = createStore(false)
+  .on(submitOrderFx.done, () => true)
+  .reset(orderSubmitted);
+
 // Метод sample это оператор для связи между юнитами,
 // с его помощью можно вызывать события или эффекты,
 // а также записывать в сторы новые значения.
-
 sample({
   //clock отвечает на вопрос: Когда запускать цепочку?
   clock: orderSubmitted, // цепочка запускается, когда пользователь нажал submit
@@ -112,7 +126,6 @@ sample({
 });
 
 // Как читать этот sample
-
 // Когда сработал orderSubmitted,
 // возьми текущие form/cart/canSubmit,
 // если canSubmit === true,
@@ -128,6 +141,19 @@ sample({
 
 // Именно это делает sample.
 
-validOrderSubmitted.watch((order) => {
-  console.log("Valid order submitted:", order);
+//Когда появился валидный заказ,
+// передай его в асинхронный effect.
+sample({
+  clock: validOrderSubmitted,
+  target: submitOrderFx,
 });
+
+// после успешной отправки очищаем корзину
+sample({
+  clock: submitOrderFx.done,
+  target: cartCleared,
+});
+
+// validOrderSubmitted.watch((order) => {
+//   console.log("Valid order submitted:", order);
+// });

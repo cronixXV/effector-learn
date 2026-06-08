@@ -9,3 +9,7 @@ export type TOrderForm = {
 export type TOrder = TOrderForm & {
   items: TCartItem[];
 };
+
+export type TCreatedOrder = TOrder & {
+  id: string;
+};

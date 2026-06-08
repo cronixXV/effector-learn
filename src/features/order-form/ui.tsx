@@ -2,8 +2,10 @@ import { useUnit } from "effector-react";
 import {
   $address,
   $canSubmitOrder,
+  $isOrderSubmitting,
   $name,
   $orderFormError,
+  $orderSuccess,
   $phone,
   addressChanged,
   nameChanged,
@@ -17,7 +19,9 @@ export const OrderForm = () => {
     phone,
     address,
     canSubmitOrder,
+    isOrderSubmitting,
     orderFormError,
+    orderSuccess,
     changeName,
     changePhone,
     changeAddress,
@@ -27,12 +31,15 @@ export const OrderForm = () => {
     phone: $phone,
     address: $address,
     canSubmitOrder: $canSubmitOrder,
+    isOrderSubmitting: $isOrderSubmitting,
     orderFormError: $orderFormError,
+    orderSuccess: $orderSuccess,
     changeName: nameChanged,
     changePhone: phoneChanged,
     changeAddress: addressChanged,
     submitOrder: orderSubmitted,
   });
+
   return (
     <section>
       <h2>Order form</h2>
@@ -48,6 +55,7 @@ export const OrderForm = () => {
           <input
             value={name}
             onChange={(event) => changeName(event.currentTarget.value)}
+            disabled={isOrderSubmitting}
           />
         </label>
 
@@ -56,6 +64,7 @@ export const OrderForm = () => {
           <input
             value={phone}
             onChange={(event) => changePhone(event.currentTarget.value)}
+            disabled={isOrderSubmitting}
           />
         </label>
 
@@ -64,13 +73,16 @@ export const OrderForm = () => {
           <textarea
             value={address}
             onChange={(event) => changeAddress(event.currentTarget.value)}
+            disabled={isOrderSubmitting}
           />
         </label>
 
         {orderFormError && <p>{orderFormError}</p>}
 
+        {orderSuccess && <p>Order created successfully.</p>}
+
         <button type="submit" disabled={!canSubmitOrder}>
-          Submit order
+          {isOrderSubmitting ? "Submitting..." : "Submit order"}
         </button>
       </form>
     </section>
