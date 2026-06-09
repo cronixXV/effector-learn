@@ -4,6 +4,7 @@ import {
   $canSubmitOrder,
   $isOrderSubmitting,
   $name,
+  $orderError,
   $orderFormError,
   $orderSuccess,
   $phone,
@@ -22,6 +23,7 @@ export const OrderForm = () => {
     isOrderSubmitting,
     orderFormError,
     orderSuccess,
+    orderError,
     changeName,
     changePhone,
     changeAddress,
@@ -34,6 +36,7 @@ export const OrderForm = () => {
     isOrderSubmitting: $isOrderSubmitting,
     orderFormError: $orderFormError,
     orderSuccess: $orderSuccess,
+    orderError: $orderError,
     changeName: nameChanged,
     changePhone: phoneChanged,
     changeAddress: addressChanged,
@@ -77,7 +80,9 @@ export const OrderForm = () => {
           />
         </label>
 
-        {orderFormError && <p>{orderFormError}</p>}
+        {orderFormError && !orderSuccess && <p>{orderFormError}</p>}
+
+        {orderError && <p>{orderError}</p>}
 
         {orderSuccess && <p>Order created successfully.</p>}
 
