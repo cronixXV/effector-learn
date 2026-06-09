@@ -23,6 +23,11 @@ export const $address = createStore("").on(
   addressChanged,
   (_, address) => address
 );
+export const $orderError = createStore<string | null>(null)
+  // submitOrderFx.failData → effect завершился ошибкой → error.message попадает в $orderError
+  .on(submitOrderFx.failData, (_, error) => error.message)
+  // orderSubmitted → пользователь начал новую попытку → старая ошибка очищается
+  .reset(orderSubmitted);
 
 // derived store, он автоматически собирает объект с полями формы
 export const $orderForm = combine({
@@ -85,7 +90,9 @@ export const $isOrderSubmitting = submitOrderFx.pending;
 
 export const $orderSuccess = createStore(false)
   .on(submitOrderFx.done, () => true)
-  .reset(orderSubmitted);
+  // новая попытка → success сбрасывается
+  // ошибка → success тоже должен быть false
+  .reset(orderSubmitted, submitOrderFx.fail);
 
 // Метод sample это оператор для связи между юнитами,
 // с его помощью можно вызывать события или эффекты,
