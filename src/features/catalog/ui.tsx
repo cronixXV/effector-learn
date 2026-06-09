@@ -3,10 +3,13 @@ import {
   $categories,
   $filteredProducts,
   $isCatalogEmpty,
+  $isProductsLoading,
   $productsCount,
+  $productsError,
   $search,
   $selectedCategory,
   categorySelected,
+  productsLoaded,
   searchChanged,
 } from "./model";
 import type { TProduct } from "../../shared/types/product";
@@ -39,20 +42,26 @@ export const Catalog = () => {
     categories,
     search,
     selectedCategory,
-    changeSearch,
-    selectCategory,
     productsCount,
     isCatalogEmpty,
+    isProductsLoading,
+    productsError,
+    changeSearch,
+    selectCategory,
+    loadProducts,
     addToCart,
   } = useUnit({
     products: $filteredProducts,
     categories: $categories,
     search: $search,
     selectedCategory: $selectedCategory,
-    changeSearch: searchChanged,
-    selectCategory: categorySelected,
     productsCount: $productsCount,
     isCatalogEmpty: $isCatalogEmpty,
+    isProductsLoading: $isProductsLoading,
+    productsError: $productsError,
+    changeSearch: searchChanged,
+    selectCategory: categorySelected,
+    loadProducts: productsLoaded,
     addToCart: productAddedToCart,
   });
 
@@ -60,16 +69,32 @@ export const Catalog = () => {
     <section>
       <h2>Catalog</h2>
 
+      <button onClick={() => loadProducts()} disabled={isProductsLoading}>
+        {isProductsLoading ? "Loading products..." : "Load products"}
+      </button>
+
+      {productsError && (
+        <div>
+          <p>{productsError}</p>
+
+          <button onClick={() => loadProducts()} disabled={isProductsLoading}>
+            Retry
+          </button>
+        </div>
+      )}
+
       <div>
         <input
           value={search}
           placeholder="Search products..."
           onChange={(event) => changeSearch(event.currentTarget.value)}
+          disabled={isProductsLoading}
         />
 
         <select
           value={selectedCategory}
           onChange={(event) => selectCategory(event.currentTarget.value)}
+          disabled={isProductsLoading}
         >
           {categories.map((category) => (
             <option key={category} value={category}>
@@ -81,7 +106,9 @@ export const Catalog = () => {
 
       <p>Found: {productsCount}</p>
 
-      {isCatalogEmpty ? (
+      {isProductsLoading ? (
+        <p>Loading catalog...</p>
+      ) : isCatalogEmpty ? (
         <p>No products found.</p>
       ) : (
         <ul>
