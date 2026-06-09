@@ -38,3 +38,14 @@ export const $cartView = combine(
 export const $totalPrice = $cartView.map((items) =>
   items.reduce((sum, item) => sum + item.total, 0)
 );
+
+// derived store со списком id
+export const $cartProductIds = $cartView.map((items) =>
+  items.map((item) => item.productId)
+);
+
+// useStoreMap - hook, который подписывается на store и преобразует его значение через selector-функцию; к
+// омпонент обновляется только когда результат selector меняется.
+// ажно: если selector возвращает undefined, обновление будет пропущено,
+// поэтому для optional-значений используют defaultValue
+// или явно превращают undefined в другое значение.
