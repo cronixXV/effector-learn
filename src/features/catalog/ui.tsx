@@ -68,10 +68,10 @@ export const Catalog = () => {
   return (
     <section>
       <h2>Catalog</h2>
-
+      {/* 
       <button onClick={() => loadProducts()} disabled={isProductsLoading}>
         {isProductsLoading ? "Loading products..." : "Load products"}
-      </button>
+      </button> */}
 
       {productsError && (
         <div>
